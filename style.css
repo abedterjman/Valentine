@@ -9,6 +9,7 @@ body {
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #f7b7c9, #f3a6be);
+  overflow: hidden; /* needed for hearts/confetti layers */
 }
 
 .card {
@@ -18,6 +19,8 @@ body {
   width: min(600px, 92vw);
   text-align: center;
   box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  position: relative;
+  z-index: 2;
 }
 
 .emoji {
@@ -48,7 +51,6 @@ h1 {
 .yes {
   background: #ff2f6d;
   color: white;
-  position: relative;
   z-index: 2;
   transition: transform 0.15s ease;
 }
@@ -71,12 +73,51 @@ h1 {
 }
 
 #result h2 {
-  font-size: 34px;
-  margin-bottom: 15px;
+  font-size: 32px;
+  margin: 10px 0 8px;
+}
+
+#result .sub {
+  margin: 0 0 14px;
+  opacity: 0.85;
 }
 
 #result img {
   width: min(420px, 90%);
   border-radius: 14px;
   box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+}
+
+/* Confetti canvas and hearts layer */
+#confettiCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 3;
+}
+
+#heartsLayer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Floating hearts */
+.heart {
+  position: absolute;
+  bottom: -40px;
+  font-size: 22px;
+  animation: floatUp linear forwards;
+  opacity: 0.9;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,0.12));
+  will-change: transform, opacity;
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(0) translateX(0) scale(0.9); opacity: 0; }
+  10%  { opacity: 0.95; }
+  100% { transform: translateY(-110vh) translateX(var(--drift)) scale(1.25); opacity: 0; }
 }
