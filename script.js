@@ -1,9 +1,13 @@
 // ===== CONFIG =====
-const herName = "Alaa"; // change if needed
-const gifUrl = "https://media.giphy.com/media/3o6fJ9kG0F3L8d8R8Y/giphy.gif";
+const herName = "Alaa";
 
-const YES_GROW_STEP = 0.08;
-const YES_MAX_SCALE = 1.7;
+// Local GIF in repo root
+const gifUrl = "yay.gif";
+
+// Make YES grow more
+const YES_GROW_STEP = 0.12;   // was 0.08 → grows faster
+const YES_MAX_SCALE = 2.1;    // was 1.7 → grows bigger
+
 const RUN_DISTANCE = 90;
 // ==================
 
@@ -17,14 +21,17 @@ gif.src = gifUrl;
 
 let yesScale = 1;
 
-// place NO inside arena
+// Keep NO inside the arena frame
 function moveNo() {
   const a = arena.getBoundingClientRect();
   const b = noBtn.getBoundingClientRect();
   const padding = 10;
 
-  const x = Math.random() * (a.width - b.width - padding);
-  const y = Math.random() * (a.height - b.height - padding);
+  const maxX = Math.max(padding, a.width - b.width - padding);
+  const maxY = Math.max(padding, a.height - b.height - padding);
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
 
   noBtn.style.left = `${x}px`;
   noBtn.style.top = `${y}px`;
@@ -35,7 +42,7 @@ function growYes() {
   yesBtn.style.transform = `scale(${yesScale})`;
 }
 
-// Mouse + touch
+// Mouse + touch proximity detection
 arena.addEventListener("pointermove", (e) => {
   const nb = noBtn.getBoundingClientRect();
   const cx = nb.left + nb.width / 2;
@@ -48,19 +55,20 @@ arena.addEventListener("pointermove", (e) => {
   }
 });
 
-// Absolute safety — NO is impossible
+// Absolute safety: NO can never be clicked
 noBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   moveNo();
   growYes();
 });
 
-// YES click
+// YES click → success screen
 yesBtn.addEventListener("click", () => {
   arena.style.display = "none";
-  document.querySelector(".hint").style.display = "none";
+  const hint = document.querySelector(".hint");
+  if (hint) hint.style.display = "none";
   result.classList.remove("hidden");
 });
 
-// initial position
+// Initial placement
 moveNo();
