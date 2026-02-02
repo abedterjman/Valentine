@@ -1,82 +1,66 @@
-* {
-  box-sizing: border-box;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+// ===== CONFIG =====
+const herName = "Alaa"; // change if needed
+const gifUrl = "https://media.giphy.com/media/3o6fJ9kG0F3L8d8R8Y/giphy.gif";
+
+const YES_GROW_STEP = 0.08;
+const YES_MAX_SCALE = 1.7;
+const RUN_DISTANCE = 90;
+// ==================
+
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const arena = document.getElementById("arena");
+const result = document.getElementById("result");
+const gif = document.getElementById("gif");
+
+gif.src = gifUrl;
+
+let yesScale = 1;
+
+// place NO inside arena
+function moveNo() {
+  const a = arena.getBoundingClientRect();
+  const b = noBtn.getBoundingClientRect();
+  const padding = 10;
+
+  const x = Math.random() * (a.width - b.width - padding);
+  const y = Math.random() * (a.height - b.height - padding);
+
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top = `${y}px`;
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, #f7b7c9, #f3a6be);
+function growYes() {
+  yesScale = Math.min(YES_MAX_SCALE, yesScale + YES_GROW_STEP);
+  yesBtn.style.transform = `scale(${yesScale})`;
 }
 
-.card {
-  background: #ffffffcc;
-  padding: 30px 25px;
-  border-radius: 20px;
-  width: min(600px, 92vw);
-  text-align: center;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-}
+// Mouse + touch
+arena.addEventListener("pointermove", (e) => {
+  const nb = noBtn.getBoundingClientRect();
+  const cx = nb.left + nb.width / 2;
+  const cy = nb.top + nb.height / 2;
 
-.emoji {
-  font-size: 64px;
-}
+  const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+  if (dist < RUN_DISTANCE) {
+    moveNo();
+    growYes();
+  }
+});
 
-h1 {
-  margin: 10px 0 20px;
-  font-size: clamp(22px, 4vw, 34px);
-}
+// Absolute safety — NO is impossible
+noBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  moveNo();
+  growYes();
+});
 
-.arena {
-  position: relative;
-  height: 180px;
-  margin: 20px auto 10px;
-  width: 100%;
-}
+// YES click
+yesBtn.addEventListener("click", () => {
+  arena.style.display = "none";
+  document.querySelector(".hint").style.display = "none";
+  result.classList.remove("hidden");
+});
 
-.btn {
-  border: none;
-  padding: 14px 26px;
-  border-radius: 999px;
-  font-size: 18px;
-  cursor: pointer;
-  user-select: none;
-}
-
-.yes {
-  background: #ff2f6d;
-  color: white;
-  position: relative;
-  z-index: 2;
-  transition: transform 0.15s ease;
-}
-
-.no {
-  background: #eaeaea;
-  color: #333;
-  position: absolute;
-  left: 60%;
-  top: 55%;
-}
-
-.hint {
-  opacity: 0.75;
-  font-size: 14px;
-}
-
-.hidden {
-  display: none;
-}
-
-#result h2 {
-  font-size: 34px;
-  margin-bottom: 15px;
-}
-
-#result img {
-  width: min(420px, 90%);
-  border-radius: 14px;
-  box-shadow: 0 18px 40px rgba(0,0,0,0.25);
-}
+// initial position
+moveNo();
