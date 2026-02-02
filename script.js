@@ -1,13 +1,13 @@
 // ===== CONFIG =====
-const gifUrl = "yay.gif?v=3";   // local GIF, cache-busted
+const gifUrl = "yay.gif?v=4";   // local GIF, cache-busted
 
-// YES behavior (very aggressive growth)
-const YES_GROW_STEP = 0.12;     // grows a lot each time
-const YES_MAX_SCALE = 3.2;      // VERY big, near full takeover
+// YES behavior
+const YES_GROW_STEP = 0.12;
+const YES_MAX_SCALE = 3.2;
 
 // NO behavior
-const RUN_DISTANCE = 100;       // when NO reacts
-const NO_MOVE_DURATION = 300;   // smooth, calm movement (ms)
+const RUN_DISTANCE = 100;
+const NO_MOVE_DURATION = 300;
 // ==================
 
 const yesBtn = document.getElementById("yesBtn");
@@ -16,17 +16,12 @@ const arena  = document.getElementById("arena");
 const result = document.getElementById("result");
 const gif    = document.getElementById("gif");
 
-// Force GIF load
-gif.src = gifUrl;
-gif.loading = "eager";
-gif.decoding = "async";
-
 let yesScale = 1;
 
-// Smooth movement for NO
+// Smooth NO movement
 noBtn.style.transition = `left ${NO_MOVE_DURATION}ms ease, top ${NO_MOVE_DURATION}ms ease`;
 
-// ---------- INITIAL NORMAL ALIGNMENT ----------
+// ---------- INITIAL ALIGNMENT ----------
 function placeInitialButtons() {
   const a = arena.getBoundingClientRect();
   const gap = 18;
@@ -47,7 +42,7 @@ function placeInitialButtons() {
   noBtn.style.top  = `${centerY}px`;
 }
 
-// ---------- NO RUNS BUT STAYS IN FRAME ----------
+// ---------- NO RUNS SMOOTHLY ----------
 function moveNoSmooth() {
   const a = arena.getBoundingClientRect();
   const b = noBtn.getBoundingClientRect();
@@ -56,14 +51,11 @@ function moveNoSmooth() {
   const maxX = Math.max(padding, a.width - b.width - padding);
   const maxY = Math.max(padding, a.height - b.height - padding);
 
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
-
-  noBtn.style.left = `${x}px`;
-  noBtn.style.top  = `${y}px`;
+  noBtn.style.left = `${Math.random() * maxX}px`;
+  noBtn.style.top  = `${Math.random() * maxY}px`;
 }
 
-// ---------- YES GROWS AND GROWS ----------
+// ---------- YES GROWS ----------
 function growYes() {
   yesScale = Math.min(YES_MAX_SCALE, yesScale + YES_GROW_STEP);
   yesBtn.style.transform = `scale(${yesScale})`;
@@ -76,26 +68,30 @@ arena.addEventListener("pointermove", (e) => {
   const cy = nb.top  + nb.height / 2;
 
   const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
-
   if (dist < RUN_DISTANCE) {
     moveNoSmooth();
     growYes();
   }
 });
 
-// ---------- ABSOLUTE SAFETY ----------
+// ---------- NO NEVER CLICKS ----------
 noBtn.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   moveNoSmooth();
   growYes();
 });
 
-// ---------- YES CLICK ----------
+// ---------- YES CLICK (LOAD GIF HERE) ----------
 yesBtn.addEventListener("click", () => {
   arena.style.display = "none";
   const hint = document.querySelector(".hint");
   if (hint) hint.style.display = "none";
+
   result.classList.remove("hidden");
+
+  // 🔥 LOAD GIF ONLY NOW (fixes iOS bug)
+  gif.src = gifUrl;
+  gif.loading = "eager";
 });
 
 // ---------- START ----------
