@@ -1,1 +1,67 @@
+// ===== CONFIG =====
+const herName = "Alaa"; // change if needed
+const gifUrl = "https://media.giphy.com/media/3o6fJ9kG0F3L8d8R8Y/giphy.gif";
+
+const YES_GROW_STEP = 0.08;
+const YES_MAX_SCALE = 1.7;
+const RUN_DISTANCE = 90;
+// ==================
+
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const arena = document.getElementById("arena");
+const result = document.getElementById("result");
+const gif = document.getElementById("gif");
+
+gif.src = gifUrl;
+
+let yesScale = 1;
+
+// place NO inside arena
+function moveNo() {
+  const a = arena.getBoundingClientRect();
+  const b = noBtn.getBoundingClientRect();
+  const padding = 10;
+
+  const x = Math.random() * (a.width - b.width - padding);
+  const y = Math.random() * (a.height - b.height - padding);
+
+  noBtn.style.left = `${x}px`;
+  noBtn.style.top = `${y}px`;
+}
+
+function growYes() {
+  yesScale = Math.min(YES_MAX_SCALE, yesScale + YES_GROW_STEP);
+  yesBtn.style.transform = `scale(${yesScale})`;
+}
+
+// Mouse + touch
+arena.addEventListener("pointermove", (e) => {
+  const nb = noBtn.getBoundingClientRect();
+  const cx = nb.left + nb.width / 2;
+  const cy = nb.top + nb.height / 2;
+
+  const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+  if (dist < RUN_DISTANCE) {
+    moveNo();
+    growYes();
+  }
+});
+
+// Absolute safety — NO is impossible
+noBtn.addEventListener("pointerdown", (e) => {
+  e.preventDefault();
+  moveNo();
+  growYes();
+});
+
+// YES click
+yesBtn.addEventListener("click", () => {
+  arena.style.display = "none";
+  document.querySelector(".hint").style.display = "none";
+  result.classList.remove("hidden");
+});
+
+// initial position
+moveNo();
 
